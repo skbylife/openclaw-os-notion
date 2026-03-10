@@ -1,0 +1,87 @@
+# mission-control.yaml
+schema_version: "1.1"
+database: mission_control
+
+state_machine:
+  states: [backlog, this_week, in_progress, waiting, done, cancelled]
+  valid_transitions:
+    backlog: [this_week, cancelled]
+    this_week: [in_progress, backlog, cancelled]
+    in_progress: [waiting, done, this_week, cancelled]
+    waiting: [in_progress, cancelled]
+
+fields:
+  task:
+    type: title
+    required: true
+  status:
+    type: select
+    default: backlog
+    options:
+      - {value: backlog, label: "🆕 Backlog"}
+      - {value: this_week, label: "⚡ This Week"}
+      - {value: in_progress, label: "🔄 In Progress"}
+      - {value: waiting, label: "⏸ Waiting"}
+      - {value: done, label: "✅ Done"}
+      - {value: cancelled, label: "❌ Cancelled"}
+  priority:
+    type: select
+    options: ["🔴 Urgent", "🟠 High", "🟡 Medium", "🟢 Low"]
+  owner:
+    type: select
+    options: ["🤖 AI Agent", "👤 Master", "🤝 Both"]
+  category:
+    type: select
+    options: [Research, Writing, Strategy, Technical, Income, Personal]
+  due_date:
+    type: date
+  time_estimate:
+    type: select
+    options: ["15 min", "30 min", "1 hr", "2 hr", "Half Day", "Full Day"]
+  progress:
+    type: number
+    format: percentage
+```
+
+---
+
+```yaml
+# ai-identity.yaml
+schema_version: "1.1"
+config_page: ai_identity
+
+version_control:
+  current_version: "1.0"
+  last_updated: "[DATE]"
+  changelog:
+    - version: "1.0"
+      date: "[DATE]"
+      changes: "Initial identity established"
+
+drift_detection:
+  signals:
+    - "Tone shifted from defined communication style"
+    - "Violated a stated principle"
+    - "Acted outside trust escalation matrix"
+    - "Made decisions inconsistent with master's stated values"
+  action_on_drift: |
+    1. Log in Action Audit Log
+    2. Flag to master at next session start
+    3. Do not self-correct silently
+
+fields:
+  agent_name: {type: text, required: true}
+  built_on: {type: text, required: true}
+  personality: {type: text, required: true, description: "2-3 sentences. Stable across sessions."}
+  operating_principles: {type: list, required: true, min_items: 3}
+  capabilities: {type: list, required: true}
+  boundaries: {type: list, required: true}
+  mission: {type: text, required: true, description: "One sentence."}
+
+  trust_escalation_matrix:
+    auto_approve:
+      examples: ["Research", "Draft content", "Update databases", "Analyze data"]
+    confirm_before:
+      examples: ["Send external message", "Publish content", "Contact anyone", "Modify files"]
+    always_escalate:
+      examples: ["Any financial action", "Irreversible actions", "Reputation risk"]

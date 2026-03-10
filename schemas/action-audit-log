@@ -1,0 +1,207 @@
+# AGENT_OS Memory Bank Schema — v1.1
+schema_version: "1.1"
+database: memory_bank
+
+fields:
+  memory_title:
+    type: title
+    required: true
+
+  category:
+    type: select
+    required: true
+    options:
+      - value: insight
+        label: "💡 Insight"
+      - value: decision
+        label: "📌 Decision"
+      - value: preference
+        label: "🎯 Preference"
+      - value: about_master
+        label: "👤 About Master"
+      - value: relationship
+        label: "🔗 Relationship"
+      - value: research
+        label: "📊 Research"
+      - value: warning
+        label: "⚠️ Warning"
+
+  importance:
+    type: select
+    required: true
+    options:
+      - value: critical
+        label: "🔴 Critical"
+        description: "Load every session. Never skip."
+      - value: important
+        label: "🟡 Important"
+      - value: reference
+        label: "🟢 Reference"
+
+  ai_context:
+    type: text
+    required: true
+    max_length: 150
+    description: "One sentence the agent uses to scan relevance"
+
+  full_detail:
+    type: text
+
+  date_added:
+    type: date
+    auto_fill: true
+
+  # v1.1 Memory Decay Fields
+  confidence:
+    type: select
+    default: high
+    options:
+      - value: high
+        label: "✅ High"
+      - value: medium
+        label: "🟡 Medium"
+      - value: low
+        label: "⚠️ Low — verify before acting"
+      - value: uncertain
+        label: "❓ Uncertain — needs confirmation"
+
+  source:
+    type: select
+    options: [Conversation, Research, Master Input, Observation, External]
+
+  times_referenced:
+    type: number
+    default: 0
+    description: "Increment each access. Zero for 30+ days = archive candidate."
+
+  last_accessed:
+    type: date
+
+  auto_archive_after:
+    type: date
+
+  archived:
+    type: checkbox
+    default: false
+
+  tags:
+    type: multi_select
+
+  related_tasks:
+    type: relation
+    target_database: mission_control
+
+query_patterns:
+  session_boot: |
+    filter: importance = Critical AND archived = false
+    sort: date_added DESC
+    after loading: times_referenced += 1, last_accessed = today
+
+  decay_check: |
+    filter: times_referenced = 0 AND auto_archive_after <= today
+    action: set archived = true
+```Athena: **【4/8】schemas/memory-bank.yaml**
+
+```yaml
+# AGENT_OS Memory Bank Schema — v1.1
+schema_version: "1.1"
+database: memory_bank
+
+fields:
+  memory_title:
+    type: title
+    required: true
+
+  category:
+    type: select
+    required: true
+    options:
+      - value: insight
+        label: "💡 Insight"
+      - value: decision
+        label: "📌 Decision"
+      - value: preference
+        label: "🎯 Preference"
+      - value: about_master
+        label: "👤 About Master"
+      - value: relationship
+        label: "🔗 Relationship"
+      - value: research
+        label: "📊 Research"
+      - value: warning
+        label: "⚠️ Warning"
+
+  importance:
+    type: select
+    required: true
+    options:
+      - value: critical
+        label: "🔴 Critical"
+        description: "Load every session. Never skip."
+      - value: important
+        label: "🟡 Important"
+      - value: reference
+        label: "🟢 Reference"
+
+  ai_context:
+    type: text
+    required: true
+    max_length: 150
+    description: "One sentence the agent uses to scan relevance"
+
+  full_detail:
+    type: text
+
+  date_added:
+    type: date
+    auto_fill: true
+
+  # v1.1 Memory Decay Fields
+  confidence:
+    type: select
+    default: high
+    options:
+      - value: high
+        label: "✅ High"
+      - value: medium
+        label: "🟡 Medium"
+      - value: low
+        label: "⚠️ Low — verify before acting"
+      - value: uncertain
+        label: "❓ Uncertain — needs confirmation"
+
+  source:
+    type: select
+    options: [Conversation, Research, Master Input, Observation, External]
+
+  times_referenced:
+    type: number
+    default: 0
+    description: "Increment each access. Zero for 30+ days = archive candidate."
+
+  last_accessed:
+    type: date
+
+  auto_archive_after:
+    type: date
+
+  archived:
+    type: checkbox
+    default: false
+
+  tags:
+    type: multi_select
+
+  related_tasks:
+    type: relation
+    target_database: mission_control
+
+query_patterns:
+  session_boot: |
+    filter: importance = Critical AND archived = false
+    sort: date_added DESC
+    after loading: times_referenced += 1, last_accessed = today
+
+  decay_check: |
+    filter: times_referenced = 0 AND auto_archive_after <= today
+    action: set archived = true

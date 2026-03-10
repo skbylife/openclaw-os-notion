@@ -50,33 +50,6 @@ Session with AGENT_OS:
 
 ---
 
-## Architecture
-
-AGENT_OS_v1.1
-├── 🚀 SESSION_START          # Boot protocol (read this first, every session)
-│   └── 10-Second Boot Block  # ~200 token callout for instant context
-├── 🧠 AGENT_CORE             # Identity & configuration
-│   ├── AI_IDENTITY           # Versioned identity contract (YAML schema)
-│   ├── MASTER_PROFILE        # Human profile (YAML schema)
-│   └── COMMUNICATION_CONTRACT
-├── 💾 MEMORY_BANK            # Queryable memory database
-│   ├── Confidence score
-│   ├── Auto-Archive date
-│   └── Times Referenced
-├── 📋 MISSION_CONTROL        # Task state machine
-│   └── States: Backlog → This Week → In Progress → Done
-├── 💰 WEALTH_ENGINE
-├── 🔧 SKILLS_REGISTRY
-├── 👥 KEY_CONTACTS
-├── 📓 SESSION_LOG
-└── 🔍 ACTION_AUDIT_LOG       # NEW in v1.1
-    ├── What action was taken
-    ├── Authority level (AUTO / CONFIRM / ESCALATE)
-    ├── Was it reported to the human?
-    └── Especially: things the agent almost didn't report
-
----
-
 ## Quick Start
 
 ### Option 1: Build it yourself

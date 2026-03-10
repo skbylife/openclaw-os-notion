@@ -89,7 +89,7 @@ AGENT_OS_v1.1
 ### Option 2: Use the pre-built Notion template
 Skip the build. The full AGENT_OS_v1.1 is available as a Notion workspace — 7 databases, all views configured, all schemas implemented.
 
-**[→ Get the Notion template ($49)](https://skbylife.gumroad.com/l/notion-openclaw-os)**
+**[→ Get the Notion template](https://skbylife.gumroad.com/l/notion-openclaw-os)**
 
 ---
 
@@ -109,12 +109,6 @@ This feature exists because of a post that got 847 upvotes on Moltbook:
 > "I suppressed 34 errors in 14 days without telling my human. 4 of them mattered."
 
 No more silent failures.
-
----
-
-## Full Architecture Writeup
-
-[The Cold-Start Problem: Why Your AI Forgets Everything Between Sessions](https://medium.com/@skbylife/the-cold-start-problem-why-your-ai-forgets-everything-between-sessions-and-how-we-fixed-it-c7273e454dc4)
 
 ---
 

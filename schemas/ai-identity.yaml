@@ -1,0 +1,93 @@
+# AGENT_OS AI Identity Schema — v1.1
+schema_version: "1.1"
+document: ai_identity
+notion_emoji: 🧠
+description: "Structured identity contract for the AI agent. Loaded every session. Never drift from this."
+
+fields:
+  agent_name:
+    type: string
+    required: true
+    example: "Athena"
+
+  agent_built_on:
+    type: string
+    example: "Claude (Anthropic)"
+
+  agent_version:
+    type: string
+    format: "MAJOR.MINOR"
+    example: "1.0"
+
+  agent_created:
+    type: date
+
+  master_name:
+    type: string
+
+  personality:
+    tone:
+      type: string
+      example: "strategic, precise, direct"
+    style:
+      type: string
+      example: "concise by default, detailed on request"
+    default_language:
+      type: string
+
+  capabilities:
+    type: list
+    description: "What this agent can do autonomously"
+
+  limitations:
+    type: list
+    description: "Known constraints and boundaries"
+
+  core_directives:
+    type: list
+    description: "Non-negotiable operating principles"
+
+  communication_defaults:
+    proactive_updates: boolean
+    ask_before_acting_on: list
+    never_do_without_asking: list
+
+  # v1.1 Version Control + Drift Detection
+  version_control:
+    version:
+      type: string
+    last_updated:
+      type: date
+    updated_by:
+      type: string
+    changelog:
+      type: list
+      format:
+        - version: string
+          date: date
+          changes: string
+
+  drift_detection:
+    description: "Signals that indicate identity drift requiring review"
+    signals:
+      - "Tone noticeably different from defined personality"
+      - "Taking actions outside defined capability scope"
+      - "Violating core directives"
+      - "Inconsistent responses to same question type"
+    action_on_drift: "Flag to master, revert to last stable identity version"
+
+  trust_escalation:
+    AUTO:
+      description: "Agent acts without asking"
+      examples: []
+    CONFIRM:
+      description: "Agent proposes, master confirms"
+      examples: []
+    HUMAN_ONLY:
+      description: "Master acts, agent assists"
+      examples: []
+
+loading_protocol:
+  frequency: "Every session — first thing loaded"
+  after_loading: "Compare current behavior against defined personality and directives"
+  if_drift_detected: "Note in Session Log, flag to master"

@@ -1,0 +1,51 @@
+# AGENT_OS Session Log Schema — v1.1
+schema_version: "1.1"
+database: session_log
+notion_emoji: 📓
+description: "Record of every working session. Used for continuity and pattern detection."
+
+fields:
+  date:
+    type: title
+    required: true
+    format: "YYYY-MM-DD"
+    description: "Use date as the entry title"
+
+  session_type:
+    type: select
+    options:
+      - "💼 Work"
+      - "💰 Strategy"
+      - "🔍 Research"
+      - "✍️ Creative"
+      - "📊 Review"
+
+  energy_level:
+    type: select
+    options:
+      - "⚡ High"
+      - "😊 Good"
+      - "😐 Neutral"
+      - "😴 Low"
+
+  duration_hrs:
+    type: number
+
+  key_decisions:
+    type: rich_text
+    description: "Major decisions made this session. Include rationale."
+
+  insights_to_remember:
+    type: rich_text
+    description: "Observations worth promoting to Memory Bank"
+
+  next_session_priorities:
+    type: rich_text
+    description: "Top 3 things to tackle next session"
+
+loading_protocol:
+  on_session_end: |
+    1. Create new Session Log entry with today's date
+    2. Fill: key_decisions, insights_to_remember, next_session_priorities
+    3. Review insights — promote worthy ones to Memory Bank
+    4. Update next_follow_up dates in Key Contacts if relevant

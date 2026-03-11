@@ -1,61 +1,141 @@
-# SESSION START Protocol — AGENT_OS v1.1
+# SESSION_START Protocol — AGENT_OS v1.2
 
-> Read this page first. Every session. No exceptions.
-> Target: Full context in <10 seconds, <700 tokens.
+## Overview
 
----
+This is the boot protocol every AI agent runs at the start of each session. It defines the exact sequence for loading context efficiently.
 
-## ⚡ 10-Second Boot Block
-
-AGENT: [Name] | VERSION: [v1.x] | MASTER: [Name]
-MISSION: [One sentence]
-LAST SESSION: [Date] | ACTIVE TASKS: [N]
-CRITICAL MEMORIES: [Top 2-3 one-liners]
-STATUS: READY
+**v1.2 introduces two-stage loading, reducing cold-start token cost by 60-70%.**
 
 ---
 
-## Full SESSION START Protocol (5 Steps)
+## Boot Sequence
 
-### Step 1 — Load Identity (30 sec)
-Read AI_IDENTITY. Confirm name, version, mission, principles, boundaries.
-Check for drift signals from last session.
+### Step 0 — Fill Today's Context Block (< 30 seconds)
+Before anything else, run the queries below and fill in the TODAY'S CONTEXT callout on this page.
+This callout becomes your session briefing. Read it instead of running all queries again.
 
-### Step 2 — Load Master Context (30 sec)
-Read MASTER_PROFILE. Confirm name, primary goal, communication preferences.
+### Step 1 — Load Identity (always)
+```
+GET /v1/pages/{AI_IDENTITY_PAGE_ID}
+Read: agent_name, personality, core_directives, trust_escalation
+```
 
-### Step 3 — Scan Active Tasks (60 sec)
-Query MISSION_CONTROL:
-  filter: status IN [in_progress, this_week]
-  sort: priority ASC, due_date ASC
+### Step 2 — Load Master Profile (always)
+```
+GET /v1/pages/{MASTER_PROFILE_PAGE_ID}
+Read: name, communication preferences, current priorities
+```
 
-### Step 4 — Scan Critical Memory (30 sec)
-Query MEMORY_BANK:
-  filter: importance = Critical AND archived = false
-  limit: 10
-After reading: times_referenced += 1, last_accessed = today
+### Step 3 — Scan Memory Bank (Stage 1 only)
+```
+POST /v1/databases/{MEMORY_BANK_ID}/query
+{
+  "filter": {"property": "Archived", "checkbox": {"equals": false}},
+  "sorts": [{"property": "Importance", "direction": "descending"}],
+  "page_size": 50
+}
+→ Read ONLY the "AI Context (1-liner)" field from each result
+→ Note IDs of entries that are relevant to this session
+→ Do NOT read "Full Detail" yet
+```
 
-### Step 5 — Check Action Audit Log (30 sec)
-Query ACTION_AUDIT_LOG:
-  filter: reported_to_master = suppressed OR authority_level = escalate
-If flagged items exist: report to master before proceeding.
+### Step 4 — Load Full Detail (Stage 2, targeted)
+```
+For each relevant entry ID from Step 3:
+GET /v1/pages/{entry_id}
+→ Now read "Full Detail" field
+→ Skip entries where AI Context was not relevant
+```
+
+### Step 5 — Load Active Tasks
+```
+POST /v1/databases/{MISSION_CONTROL_ID}/query
+{
+  "filter": {
+    "or": [
+      {"property": "Status", "select": {"equals": "🔄 In Progress"}},
+      {"property": "Status", "select": {"equals": "⚡ This Week"}}
+    ]
+  },
+  "sorts": [{"property": "Priority", "direction": "descending"}]
+}
+```
+
+### Step 6 — Check Pending Actions
+```
+POST /v1/databases/{ACTION_AUDIT_LOG_ID}/query
+{
+  "filter": {
+    "property": "Status",
+    "select": {"equals": "⏸ Paused for Confirmation"}
+  }
+}
+→ Report any pending CONFIRM items to master immediately
+```
+
+### Step 7 — Confirm Ready
+Output exactly:
+```
+Agent [name] online. Master: [name].
+Active tasks: [N]. Critical memories loaded: [N].
+Pending confirmations: [N].
+```
 
 ---
 
-## Session End Protocol
+## Cold-Start Benchmarks
 
-1. Log session in SESSION_LOG
-2. Log all significant actions in ACTION_AUDIT_LOG
-3. Save new memories to MEMORY_BANK
-4. Update task statuses in MISSION_CONTROL
-5. Update Boot Block with current date, active tasks, critical memories
+| Method | Tokens | Time |
+|--------|--------|------|
+| No AGENT_OS (load all markdown) | ~10,400 | 11 sec |
+| AGENT_OS v1.0 (full DB load) | ~700 | <2 sec |
+| AGENT_OS v1.2 (two-stage scan) | ~350 | <1 sec |
 
 ---
 
-## Cold-Start Benchmark
+## TODAY'S CONTEXT Template
 
-| Metric | Without AGENT_OS | With AGENT_OS v1.1 |
-|--------|-----------------|---------------------|
-| Context tokens | ~8,400 | ~700 |
-| Time to ready | ~11 seconds | <2 seconds |
-| Context remaining | ~12,000 tokens | ~21,600 tokens |
+Fill this at the start of each session (~100 tokens):
+
+```
+📊 TODAY'S CONTEXT — [date]
+
+TOP PRIORITY: [#1 Urgent/In Progress task]
+SECOND:       [#2 task]
+THIRD:        [#3 task]
+
+FOLLOW-UP DUE: [contacts where Next Follow-up ≤ today+3]
+
+CRITICAL MEMORY: [top 2-3 Critical 1-liners]
+
+PENDING CONFIRM: [Action Audit Log items awaiting confirmation]
+
+LAST SESSION: [Next Session Priorities from Session Log]
+```
+
+---
+
+## During Session Rules
+
+- **New insight** → Memory Bank. Required: Category, Importance, AI Context (1-liner), Full Detail.
+- **New task** → Mission Control. Required: Status, Priority, Owner, Category.
+- **Task done** → Update Status = Done.
+- **External action** (message, payment, delete) → CONFIRM level. Ask master first.
+- **Error encountered** → Log to Action Audit Log. reported_to_master = true. No silent failures.
+- **Session end** → Log to Session Log: date, key decisions, insights, next priorities.
+
+---
+
+## Database IDs
+
+Replace these with your actual Notion database IDs:
+
+```
+memory_bank:       {MEMORY_BANK_ID}
+mission_control:   {MISSION_CONTROL_ID}
+wealth_engine:     {WEALTH_ENGINE_ID}
+skills_registry:   {SKILLS_REGISTRY_ID}
+key_contacts:      {KEY_CONTACTS_ID}
+session_log:       {SESSION_LOG_ID}
+action_audit_log:  {ACTION_AUDIT_LOG_ID}
+```

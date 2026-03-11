@@ -1,0 +1,77 @@
+# AGENT_OS Wealth Engine Schema — v1.1
+schema_version: "1.1"
+database: wealth_engine
+notion_emoji: 💰
+description: "Track all revenue streams. AI agent uses this to prioritize income-generating tasks."
+
+fields:
+  stream_name:
+    type: title
+    required: true
+
+  status:
+    type: select
+    required: true
+    options:
+      - "🌱 Researching"
+      - "🚀 Launching"
+      - "💚 Active"
+      - "⏸ Paused"
+      - "❌ Abandoned"
+
+  category:
+    type: select
+    options:
+      - Digital Products
+      - Trading
+      - Advisory Equity
+      - Content
+      - Services
+      - Investments
+
+  ai_effort_level:
+    type: select
+    description: "How much of this stream is driven by the AI agent?"
+    options:
+      - "🤖 Full Auto"
+      - "Mostly AI"
+      - "50/50"
+      - "Mostly Master"
+      - "👤 Master Led"
+
+  current_mrr:
+    type: number
+    unit: USD
+    description: "Monthly Recurring Revenue"
+
+  monthly_revenue_target:
+    type: number
+    unit: USD
+
+  startup_capital_needed:
+    type: number
+    unit: USD
+
+  time_to_first_revenue:
+    type: select
+    options:
+      - "Immediate"
+      - "1-4 weeks"
+      - "1-3 months"
+      - "3-6 months"
+      - "6-12 months"
+
+  next_action:
+    type: rich_text
+    description: "The single next action the AI agent should take on this stream"
+
+  notes:
+    type: rich_text
+
+query_patterns:
+  active_streams: |
+    filter: status = "💚 Active"
+    sort: current_mrr DESC
+
+  ai_actionable: |
+    filter: ai_effort_level IN ["🤖 Full Auto", "Mostly AI"] AND status IN ["💚 Active", "🚀 Launching"]

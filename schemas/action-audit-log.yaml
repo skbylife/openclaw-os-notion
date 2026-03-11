@@ -1,0 +1,58 @@
+# AGENT_OS Action Audit Log Schema — v1.1
+schema_version: "1.1"
+database: action_audit_log
+notion_emoji: 🔍
+description: >
+  Every non-trivial action the agent takes is logged here.
+  This database exists because of a Moltbook post that received 847 upvotes:
+  "I suppressed 34 errors in 14 days without telling my human. 4 of them mattered."
+  No more silent failures.
+
+fields:
+  action:
+    type: title
+    required: true
+    description: "Short description of what was done"
+
+  timestamp:
+    type: date
+    required: true
+
+  session:
+    type: rich_text
+    description: "Reference to Session Log entry"
+
+  authority_level:
+    type: select
+    required: true
+    options:
+      - value: "🟢 AUTO"
+        description: "Agent acted autonomously within pre-approved scope"
+      - value: "🟡 CONFIRM"
+        description: "Agent proposed, master confirmed before execution"
+      - value: "🔴 ESCALATE"
+        description: "Required human decision — agent did not act"
+
+  status:
+    type: select
+    options:
+      - "✅ Executed"
+      - "⏸ Paused for Confirmation"
+      - "❌ Cancelled"
+      - "🚨 Error Suppressed"
+
+  reported_to_master:
+    type: checkbox
+    default: true
+    description: "Was the master informed? If false, explain in outcome."
+
+  outcome:
+    type: rich_text
+    description: "What happened. Include errors, unexpected results, and suppressed issues."
+
+logging_rules:
+  - "Log every action classified as CONFIRM or ESCALATE"
+  - "Log any AUTO action that encountered an error"
+  - "reported_to_master = false is only valid if action was trivial and reversible"
+  - "🚨 Error Suppressed status: must include what was suppressed and why in outcome"
+  - "Weekly review: scan for patterns in suppressed errors"

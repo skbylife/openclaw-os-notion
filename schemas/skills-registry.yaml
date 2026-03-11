@@ -1,0 +1,43 @@
+# AGENT_OS Skills Registry Schema — v1.1
+schema_version: "1.1"
+database: skills_registry
+notion_emoji: 🔧
+description: "Catalog of agent capabilities and external integrations. Load relevant skills at session start."
+
+fields:
+  skill_name:
+    type: title
+    required: true
+
+  status:
+    type: select
+    options:
+      - "✅ Active"
+      - "🔄 Learning"
+      - "📋 Planned"
+      - "❌ Deprecated"
+
+  category:
+    type: select
+    options:
+      - Research
+      - Writing
+      - Technical
+      - Strategy
+      - Financial
+      - Creative
+
+  what_it_unlocks:
+    type: rich_text
+    description: "What the agent can do with this skill that it couldn't before"
+
+  how_to_invoke:
+    type: rich_text
+    description: "Exact instructions or command syntax to use this skill"
+
+  source_url:
+    type: url
+    description: "Documentation, repo, or reference link"
+
+  date_added:
+    type: date

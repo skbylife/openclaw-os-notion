@@ -1,0 +1,55 @@
+# AGENT_OS Key Contacts Schema — v1.1
+schema_version: "1.1"
+database: key_contacts
+notion_emoji: 👥
+description: "Master's network. AI uses this for follow-up tracking and relationship context."
+
+fields:
+  name:
+    type: title
+    required: true
+
+  type:
+    type: select
+    options:
+      - "🎯 Target Client"
+      - "💼 Partner"
+      - "🌱 Investor"
+      - "🤝 Advisor"
+      - "🌐 Network"
+      - "👋 Acquaintance"
+
+  relationship:
+    type: select
+    options:
+      - "🔥 Strong"
+      - "👍 Good"
+      - "🌱 Building"
+      - "👋 Acquaintance"
+
+  role:
+    type: rich_text
+
+  company:
+    type: rich_text
+
+  last_contact:
+    type: date
+
+  next_follow_up:
+    type: date
+    description: "Agent flags this in session if date is approaching"
+
+  how_we_can_help_each_other:
+    type: rich_text
+
+  notes:
+    type: rich_text
+
+  tags:
+    type: multi_select
+
+query_patterns:
+  follow_up_due: |
+    filter: next_follow_up <= today + 7 days
+    action: include in session briefing

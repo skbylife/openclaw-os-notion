@@ -1,102 +1,101 @@
 # AGENT_OS Memory Bank Schema — v1.1
 schema_version: "1.1"
 database: memory_bank
+notion_emoji: 💾
 
 fields:
   memory_title:
     type: title
     required: true
+    description: "Short label for this memory entry"
 
   category:
     type: select
     required: true
     options:
-      - value: insight
-        label: "💡 Insight"
-      - value: decision
-        label: "📌 Decision"
-      - value: preference
-        label: "🎯 Preference"
-      - value: about_master
-        label: "👤 About Master"
-      - value: relationship
-        label: "🔗 Relationship"
-      - value: research
-        label: "📊 Research"
-      - value: warning
-        label: "⚠️ Warning"
+      - "💡 Insight"
+      - "📌 Decision"
+      - "🎯 Preference"
+      - "👤 About Master"
+      - "🔗 Relationship"
+      - "📊 Research"
+      - "⚠️ Warning"
 
   importance:
     type: select
     required: true
+    default: "🟡 Important"
     options:
-      - value: critical
-        label: "🔴 Critical"
+      - value: "🔴 Critical"
         description: "Load every session. Never skip."
-      - value: important
-        label: "🟡 Important"
-      - value: reference
-        label: "🟢 Reference"
+      - value: "🟡 Important"
+        description: "Load when relevant to current task."
+      - value: "🟢 Reference"
+        description: "Load on demand only."
 
   ai_context:
-    type: text
+    type: rich_text
     required: true
     max_length: 150
-    description: "One sentence the agent uses to scan relevance"
+    description: "One-liner for quick relevance scanning. Keep it dense."
 
   full_detail:
-    type: text
-
-  date_added:
-    type: date
-    auto_fill: true
-
-  # v1.1 Memory Decay Fields
-  confidence:
-    type: select
-    default: high
-    options:
-      - value: high
-        label: "✅ High"
-      - value: medium
-        label: "🟡 Medium"
-      - value: low
-        label: "⚠️ Low — verify before acting"
-      - value: uncertain
-        label: "❓ Uncertain — needs confirmation"
+    type: rich_text
+    description: "Full context, examples, nuance. Load after ai_context confirms relevance."
 
   source:
+    type: rich_text
+    description: "Where this memory came from (conversation, research, observation, etc.)"
+
+  confidence:
     type: select
-    options: [Conversation, Research, Master Input, Observation, External]
+    default: "✅ Verified"
+    options:
+      - "✅ Verified"
+      - "🟡 Medium"
+      - "🔴 Low / Unverified"
 
   times_referenced:
     type: number
     default: 0
-    description: "Increment each access. Zero for 30+ days = archive candidate."
+    description: "Increment each time this memory influences a decision."
 
   last_accessed:
     type: date
 
   auto_archive_after:
     type: date
+    description: "Agent should archive if not accessed by this date."
 
   archived:
     type: checkbox
     default: false
 
+  in_ai_context_window:
+    type: checkbox
+    default: false
+    description: "True when loaded in active session."
+
+  date_added:
+    type: date
+
   tags:
     type: multi_select
 
-  related_tasks:
-    type: relation
-    target_database: mission_control
-
 query_patterns:
   session_boot: |
-    filter: importance = Critical AND archived = false
+    filter: importance = "🔴 Critical" AND archived = false
     sort: date_added DESC
-    after loading: times_referenced += 1, last_accessed = today
+    on_load: times_referenced += 1, last_accessed = today
+
+  on_demand: |
+    filter: importance IN ["🟡 Important", "🟢 Reference"] AND archived = false
 
   decay_check: |
     filter: times_referenced = 0 AND auto_archive_after <= today
-    action: set archived = true
+    action: archived = true
+
+decay_rules:
+  - "Critical entries: never auto-archive without human confirmation"
+  - "Medium/Reference: auto-archive if times_referenced = 0 and auto_archive_after passed"
+  - "Low/Unverified confidence: flag for review before acting"

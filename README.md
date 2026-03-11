@@ -8,6 +8,8 @@
 
 ---
 
+> ❤️ **Support our work:** The schemas below are free & open-source (MIT). [Buying the Notion template ($49)](https://skbylife.gumroad.com/l/notion-openclaw-os) funds continued development and keeps the schemas improving.
+
 ## The Problem
 
 Most people give their AI agent a folder of markdown files. It fails because:

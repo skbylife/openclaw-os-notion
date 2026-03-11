@@ -1,0 +1,76 @@
+# AGENT_OS Mission Control Schema — v1.1
+schema_version: "1.1"
+database: mission_control
+notion_emoji: 📋
+
+fields:
+  task:
+    type: title
+    required: true
+
+  status:
+    type: select
+    required: true
+    default: "🆕 Backlog"
+    options:
+      - "🆕 Backlog"
+      - "⚡ This Week"
+      - "🔄 In Progress"
+      - "⏸ Waiting"
+      - "✅ Done"
+      - "❌ Cancelled"
+
+  priority:
+    type: select
+    required: true
+    options:
+      - "🔴 Urgent"
+      - "🟠 High"
+      - "🟡 Medium"
+      - "🟢 Low"
+
+  category:
+    type: select
+    options:
+      - Research
+      - Writing
+      - Strategy
+      - Technical
+      - Income
+      - Personal
+
+  owner:
+    type: select
+    options:
+      - "🤖 AI Agent"
+      - "👤 Master"
+      - "🤝 Both"
+
+  due_date:
+    type: date
+
+  time_estimate:
+    type: select
+    options:
+      - "15 min"
+      - "30 min"
+      - "1 hr"
+      - "2 hr"
+      - "Half Day"
+      - "Full Day"
+
+  progress:
+    type: number
+    description: "Percentage complete (0-100)"
+
+  notes:
+    type: rich_text
+
+query_patterns:
+  active_tasks: |
+    filter: status IN ["⚡ This Week", "🔄 In Progress"] AND owner IN ["🤖 AI Agent", "🤝 Both"]
+    sort: priority DESC, due_date ASC
+
+  weekly_review: |
+    filter: status IN ["🆕 Backlog", "⏸ Waiting"]
+    sort: priority DESC

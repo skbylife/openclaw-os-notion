@@ -1,5 +1,20 @@
 # CHANGELOG — AGENT_OS
 
+## v1.3.0 — 2026-03-12
+
+### Added
+- Lessons Learned database (8th DB): 10 fields, sample entry, behavior fix template
+- Output Capture Hooks: 3 new fields in Session Log (Outputs Captured, Output Count, Output Types)
+- Loading Protocol v2 visual guide page in Notion template
+- SESSION_START Step 3.5: preload Critical lessons prevention_rules
+
+### Improved
+- Cold-start: ~530 tokens (95% reduction vs 10,400 baseline)
+- Anti-repeat pattern: times_triggered > 2 triggers master alert
+- Anti-amnesia: Session Log keyword search before claiming no memory
+
+---
+
 ## v1.2 — 2026-03-11
 
 ### Added

@@ -4,7 +4,7 @@
 
 [![Notion Template](https://img.shields.io/badge/Notion_Template-$49-black?style=flat-square&logo=notion)](https://skbylife.gumroad.com/l/notion-openclaw-os)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.1-green?style=flat-square)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.3-green?style=flat-square)](CHANGELOG.md)
 
 ---
 
@@ -46,9 +46,9 @@ Useful context remaining:       ~21,600 tokens
 
 ## What's Inside
 
-AGENT_OS is a structured external operating environment with 7 Notion databases and supporting protocols:
+AGENT_OS is a structured external operating environment with 8 Notion databases and supporting protocols:
 
-### 7 Databases
+### 8 Databases
 
 | Database | Purpose |
 |----------|---------|
@@ -59,6 +59,7 @@ AGENT_OS is a structured external operating environment with 7 Notion databases 
 | 👥 **Key Contacts** | Relationship tracking with follow-up automation |
 | 📓 **Session Log** | Session history for continuity and pattern detection |
 | 🔍 **Action Audit Log** | Every non-trivial action logged — including what wasn't reported *(new in v1.1)* |
+| 📚 **Lessons Learned** | Behavior corrections with prevention rules — stops repeated mistakes *(new in v1.3)* |
 
 ### Supporting Documents
 
@@ -66,6 +67,49 @@ AGENT_OS is a structured external operating environment with 7 Notion databases 
 - **SESSION_START Protocol** — 10-second boot sequence
 - **Trust Escalation Matrix** — AUTO / CONFIRM / HUMAN_ONLY action tiers
 - **Memory Decay Protocol** — rules for archiving stale memories
+
+---
+
+## What's New in v1.3
+
+### Lessons Learned Database *(8th DB)*
+A dedicated database for behavior corrections — so your agent never makes the same mistake twice.
+
+- 10-field schema: `lesson_title`, `date`, `category`, `severity`, `what_happened`, `root_cause`, `fix_applied`, `prevention_rule`, `times_triggered`, `status`
+- SESSION_START Step 3.5: preload `prevention_rule` of all Critical lessons (~180 tokens)
+- Escalation rule: if `times_triggered > 2`, alert master immediately
+- See [`docs/LESSONS_GUIDE.md`](docs/LESSONS_GUIDE.md) for full usage guide
+
+### Output Capture Hooks
+89% of AI outputs are generated and never referenced again. This fixes that.
+
+- 3 new fields added to Session Log: **Outputs Captured**, **Output Count**, **Output Types**
+- `OUTPUT_CAPTURE` block format with `retrieval_key` (3-5 keywords) for instant lookup
+- Long output rule: >500 words → create child Notion page, store reference in Session Log
+- Anti-amnesia rule: before claiming "I don't have that", query Session Log by keywords
+- See [`docs/OUTPUT_CAPTURE_GUIDE.md`](docs/OUTPUT_CAPTURE_GUIDE.md) for full usage guide
+
+### Loading Protocol v2
+Two-stage loading with visual guide — 95% token reduction from baseline.
+
+```mermaid
+graph TD
+  A[Session Start] --> B[Stage 1: Scan Memory Bank\n1-liner AI Context only ~180 tokens]
+  B --> C{Relevant entries?}
+  C -->|Yes| D[Stage 2: Load Full Detail\nRelevant entries only ~350 tokens]
+  C -->|No| E[Proceed with minimal context]
+  D --> F[Step 3.5: Load Critical Lessons\nPrevention rules only +180 tokens]
+  E --> F
+  F --> G[Agent Ready ~530 tokens total]
+```
+
+| Scenario | Cold-start tokens | Savings |
+|----------|-------------------|---------|
+| No AGENT_OS | ~10,400 | — |
+| AGENT_OS v1.2 | ~350 | 97% |
+| AGENT_OS v1.3 | ~530 | 95% |
+
+See [`docs/LOADING_PROTOCOL.md`](docs/LOADING_PROTOCOL.md) for full protocol with copy-paste SESSION_START block.
 
 ---
 
@@ -122,7 +166,8 @@ schemas/
 ├── skills-registry.yaml      # Capability catalog
 ├── key-contacts.yaml         # Relationship tracking
 ├── session-log.yaml          # Session history
-└── action-audit-log.yaml     # Action audit trail (v1.1)
+├── action-audit-log.yaml     # Action audit trail (v1.1)
+└── lessons-learned.yaml      # Behavior corrections + prevention rules (v1.3)
 ```
 
 ---
